@@ -1,0 +1,260 @@
+Mail Box
+CREATE TABLE Mail_Box
+(MailBoxID int not null check (MailBoxID>0),
+KeyNumber nvarchar(25),
+CONSTRAINT Mail_Box_PK PRIMARY KEY (MailBoxID));
+
+Community
+CREATE TABLE Community
+(CommunityID int not null check (CommunityID>0),
+CommunityName nvarchar(50),
+Street nvarchar(100),
+City nvarchar(100),
+State char(2),
+ZipCode char(5),
+ContactNumber char(10),
+CONSTRAINT Community_PK PRIMARY KEY (CommunityID));
+
+Apartment
+CREATE TABLE Apartment
+(ApartmentID int not null check (ApartmentID>0),
+RoomView char(1) CHECK (RoomView IN ('R','M','N')),
+Unit nvarchar(10),
+Street nvarchar(100),
+City nvarchar(100),
+State char(2),
+ZipCode char(5),
+RoomType varchar(3) CHECK (RoomType IN ('S', '1BD', '2BD', '3BD')),
+Status varchar(2) CHECK (Status IN ('A','OC')),
+BasePrice decimal(9,2),
+MailBoxID int not null,
+CommunityID int not null,
+CONSTRAINT Apartment_PK PRIMARY KEY (ApartmentID),
+CONSTRAINT Apartment_FK1 FOREIGN KEY (MailBoxID) REFERENCES Mail_Box(MailBoxID),
+CONSTRAINT Apartment_FK2 FOREIGN KEY (CommunityID) REFERENCES Community(CommunityID));
+
+
+Parking Lot
+CREATE TABLE Parking_Lot
+(ParkingLotID int not null check (ParkingLotID>0),
+Floor char(1) CHECK (Floor IN ('1','2')),
+Space int not null, 
+ApartmentID int,
+CONSTRAINT Parking_Lot_PK PRIMARY KEY (ParkingLotID),
+CONSTRAINT Parking_Lot_FK FOREIGN KEY (ApartmentID) REFERENCES Apartment(ApartmentID));
+
+Customer
+CREATE TABLE Customer
+(CustomerID int not null check (CustomerID >0),
+CustomerName nvarchar(50) not null, 
+CustomerPhoneNumber char(10),
+CustomerBirthday date,
+CustomerEmail nvarchar(50),
+CustomerOccupation nvarchar(50),
+CustomerSSNNumber char(9),
+ApartmentID int not null,
+CONSTRAINT Customer_PK PRIMARY KEY (CustomerID),
+CONSTRAINT Customer_FK FOREIGN KEY (ApartmentID) REFERENCES Apartment(ApartmentID));
+
+Vehicle
+CREATE TABLE Vehicle
+(VehicleID int not null check (VehicleID>0),
+LicensePlateNumber	nvarchar(50),
+Brand	nvarchar(50),
+Model	nvarchar(50),
+Color	nvarchar(50),
+Year	char(4),
+CustomerID	int not null,
+CONSTRAINT Vehicle_PK PRIMARY KEY (VehicleID),
+CONSTRAINT Vehicle_FK FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID));
+
+Parking Permit
+CREATE TABLE Parking_Permit
+(PermitID int not null check (PermitID>0),
+MonthlyPrice decimal(9,2),
+PermitStartDate	date,
+PermitEndDate	date,
+VehicleID int not null, 
+ParkingLotID int not null,
+CONSTRAINT Parking_Permit_PK PRIMARY KEY (PermitID),
+CONSTRAINT Parking_Permit_FK1 FOREIGN KEY (VehicleID) REFERENCES Vehicle(VehicleID),
+CONSTRAINT Parking_Permit_FK2 FOREIGN KEY (ParkingLotID) REFERENCES Parking_Lot(ParkingLotID));
+
+Lease 
+CREATE TABLE Lease
+(LeaseID int not null check (LeaseID>0),
+StartDate	date,	
+EndDate	date,
+DepositAmount int check (DepositAmount>0),
+LeaseTerm	char(1)	CHECK (LeaseTerm IN ('M','Q','A')),
+MonthlyRent decimal(9,2),
+PreviousLeaseID int,
+ApartmentID	int	not null,
+CONSTRAINT Lease_PK PRIMARY KEY (LeaseID),
+CONSTRAINT Lease_FK1 FOREIGN KEY (PreviousLeaseID) REFERENCES Lease(LeaseID),
+CONSTRAINT Lease_FK2 FOREIGN KEY (ApartmentID) REFERENCES Apartment(ApartmentID));
+
+Lease_Customer
+CREATE TABLE Lease_Customer
+(LeaseID int not null,
+CustomerID int not null,
+CONSTRAINT Lease_Customer_PK PRIMARY KEY (LeaseID, CustomerID),
+CONSTRAINT Lease_Customer_FK1 FOREIGN KEY (LeaseID) REFERENCES Lease(LeaseID),
+CONSTRAINT Lease_Customer_FK2 FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID));
+
+Payment
+CREATE TABLE Payment
+(PaymentID	int	not null check (PaymentID>0),
+PaymentType	varchar(2)	CHECK (PaymentType IN ('CC','DC', 'C')),
+PaymentAmount	decimal(9,2),	
+PaymentDate	datetime,	
+CreditCardNumber	char(16),	
+ExpirationDate	date,	
+PaymentItem	char(1) CHECK (PaymentItem IN ('P','R')),	
+LeaseID int,	
+PermitID int,
+CustomerID int not null,
+CONSTRAINT Payment_PK PRIMARY KEY (PaymentID),
+CONSTRAINT Payment_FK1 FOREIGN KEY (LeaseID) REFERENCES Lease(LeaseID),
+CONSTRAINT Payment_FK2 FOREIGN KEY (PermitID) REFERENCES Parking_Permit(PermitID),
+CONSTRAINT Payment_FK3 FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID));
+
+Employee
+CREATE TABLE Employee
+(EmployeeID	int	not null check (EmployeeID>0),
+EmployeeName nvarchar(50) not null,	
+EmployeeDateofBirth	date,	
+EmployeePhoneNumber	char(10),	
+EmployeeTitle nvarchar(50),	
+EmployeeType char(3) not null CHECK (EmployeeType IN ('Cor', 'Com')),
+CONSTRAINT Employee_PK PRIMARY KEY (EmployeeID));
+
+Employee_Community_Employee
+CREATE TABLE Community_Employee
+(CEmployeeID	int not null check (CEmployeeID>0),
+CommunityEmployeeType char(1) not null CHECK (CommunityEmployeeType IN ('M','S')),
+CommunityID	int not null,
+CONSTRAINT Community_Employee_PK PRIMARY KEY (CEmployeeID),
+CONSTRAINT Community_Employee_FK1 FOREIGN KEY (CEmployeeID) REFERENCES Employee(EmployeeID),
+CONSTRAINT Community_Employee_FK2 FOREIGN KEY (CommunityID) REFERENCES Community(CommunityID));
+
+
+Employee_Community Employee_Manager
+CREATE TABLE Community_Employee_Manager
+(MCEmployeeID	int not null check (MCEmployeeID>0),
+Salary	decimal(9,2) check (Salary>0),
+CONSTRAINT Community_Employee_Manager_PK PRIMARY KEY (MCEmployeeID),
+CONSTRAINT Community_Employee_Manager_FK1 FOREIGN KEY (MCEmployeeID) REFERENCES Community_Employee(CEmployeeID));
+
+
+Employee_Community Employee_Staff
+CREATE TABLE Community_Employee_Staff
+(SCEmployeeID	int	not null check (SCEmployeeID>0),
+HourlyRate decimal(9,2)	check (HourlyRate>0),
+MCEmployeeID int not null,
+CONSTRAINT Community_Employee_Staff_PK PRIMARY KEY (SCEmployeeID),
+CONSTRAINT Community_Employee_Staff_FK1 FOREIGN KEY (SCEmployeeID) REFERENCES Community_Employee(CEmployeeID),
+CONSTRAINT Community_Employee_Staff_FK2 FOREIGN KEY (MCEmployeeID) REFERENCES Community_Employee_Manager(MCEmployeeID));
+
+
+Event
+CREATE TABLE Event
+(EventID int not null 	check(EventID>0),
+EventName	nvarchar(50),	
+EventDate 	datetime,	
+EventLocation	nvarchar(50),	
+EventDescription 	nvarchar(100),
+CONSTRAINT Event_PK PRIMARY KEY (EventID));
+
+Work Schedule
+CREATE TABLE Work_Schedule
+(WorkScheduleID	int not null check(WorkScheduleID>0),
+WorkStartTime	datetime,	
+WorkEndTime	datetime,	
+EventID	int	not null 
+CONSTRAINT Work_Schedule_PK PRIMARY KEY (WorkScheduleID),
+CONSTRAINT Work_Schedule_FK1 FOREIGN KEY (EventID) REFERENCES Event(EventID));
+
+
+Work Schedule_Community Employee
+CREATE TABLE Work_Schedule_Community_Employee
+(WorkScheduleID	int not null,
+CEmployeeID	int	not null,
+CONSTRAINT Work_Schedule_Community_Employee_PK PRIMARY KEY (WorkScheduleID, CEmployeeID),
+CONSTRAINT Work_Schedule_Community_Employee_FK1 FOREIGN KEY (WorkScheduleID) REFERENCES Work_Schedule(WorkScheduleID),
+CONSTRAINT Work_Schedule_Community_Employee_FK2 FOREIGN KEY (CEmployeeID) REFERENCES Community_Employee(CEmployeeID));
+
+
+Event_Customer
+CREATE TABLE Event_Customer
+(EventID	int	not null,
+CustomerID	int not null,
+CONSTRAINT Event_Customer_PK PRIMARY KEY (EventID, CustomerID),
+CONSTRAINT Event_Customer_FK1 FOREIGN KEY (EventID) REFERENCES Event(EventID),
+CONSTRAINT Event_Customer_FK2 FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID));
+
+
+Work Order
+CREATE TABLE Work_Order
+(WorkOrderID	int	not null check(WorkOrderID>0),
+WorkOrderDescription	nvarchar(100),	
+OrderDate	datetime,	
+StartDate	datetime,	
+CompletionDate	datetime,	
+Priority	char(1)	check(Priority in ('L','M','H')),
+Status 	char(1)	check(Status in('P','C','D')),
+ApartmentID	int	not null,
+SCEmployeeID int	not null,
+CONSTRAINT Work_Order_PK PRIMARY KEY (WorkOrderID),
+CONSTRAINT Work_Order_FK1 FOREIGN KEY (ApartmentID) REFERENCES Apartment(ApartmentID),
+CONSTRAINT Work_Order_FK2 FOREIGN KEY (SCEmployeeID) REFERENCES Community_Employee_Staff(SCEmployeeID));
+
+
+Part
+CREATE TABLE Part
+(PartID	int not null check(PartID>0),
+PartName nvarchar(50),	
+PartDescription	nvarchar(100),	
+PartQuantityonHand int	check(PartQuantityonHand>=0),
+CONSTRAINT Part_PK PRIMARY KEY (PartID));
+
+Consume
+CREATE TABLE Consume
+(PartID	int	not null,
+WorkOrderID	int	not null, 
+Quantity 	int	check(Quantity>0),
+CONSTRAINT Consume_PK PRIMARY KEY (PartID, WorkOrderID),
+CONSTRAINT Consume_FK1 FOREIGN KEY (PartID) REFERENCES Part(PartID),
+CONSTRAINT Consume_FK2 FOREIGN KEY (WorkOrderID) REFERENCES Work_Order(WorkOrderID));
+
+Supplier
+CREATE TABLE Supplier
+(SupplierID	int not null check(SupplierID > 0),
+SupplierName nvarchar(50),	
+SupplierPhoneNumber	char(10),	
+CONSTRAINT Supplier_PK PRIMARY KEY (SupplierID));
+
+Supplies
+CREATE TABLE Supplies
+(SupplierID	int	not null,
+PartID	int	not null,
+UnitPrice decimal(9,2) check(UnitPrice > 0),
+CONSTRAINT Supplies_PK PRIMARY KEY (SupplierID, PartID),
+CONSTRAINT Supplies_FK1 FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID),
+CONSTRAINT Supplies_FK2 FOREIGN KEY (PartID) REFERENCES Part(PartID));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

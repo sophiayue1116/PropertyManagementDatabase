@@ -1,0 +1,91 @@
+bulk insert Mail_Box
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Mail_Box.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Community
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Community.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Apartment
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Apartment.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Parking_Lot
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Parking_Lot.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Customer
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Customer.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Vehicle
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Vehicle.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Parking_Permit
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Parking_Permit.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Lease
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Lease.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Lease_Customer
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Lease_Customer.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Payment
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Payment.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Employee
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Employee.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Community_Employee
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Community_Employee.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Community_Employee_Manager
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Community_Employee_Manager.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Community_Employee_Staff
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Community_Employee_Staff.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Event
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Event.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Work_Schedule
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Work_Schedule.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Work_Schedule_Community_Employee
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Work_Schedule_Community_Employee.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Event_Customer
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Event_Customer.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Work_Order
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Work_Order.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Part
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Part.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Consume
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Consume.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Supplier
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Supplier.csv'
+with (rowterminator = '\n', fieldterminator = ',');
+
+bulk insert Supplies
+from 'E:\MSIS2603_database\project\final\DataSampleInput\Supplies.csv'
+with (rowterminator = '\n', fieldterminator = ',');

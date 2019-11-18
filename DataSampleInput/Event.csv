@@ -1,0 +1,41 @@
+EventID,EventName,EventDate,EventLocation,EventDescription
+200000000,Community safety,12/1/2017,Pace,Techniques on how to improve safety
+200000001,Community safety,12/2/2017,Ashbury,Techniques on how to improve safety
+200000002,Community safety,12/3/2017,Traverse,Techniques on how to improve safety
+200000003,New Year Party,12/30/2017,Pace,"Music, Games"
+200000004,New Year Party,12/31/2017,Ashbury,"Music, Games"
+200000005,New Year Party,1/1/2018,Traverse,"Music, Games"
+200000006,Social Night,2/1/2018,Pace,"Food, Games, TV, Music"
+200000007,Social Night,2/2/2018,Ashbury,"Food, Games, TV, Music"
+200000008,Social Night,2/3/2018,Traverse,"Food, Games, TV, Music"
+200000009,Children potluck,2/15/2018,Pace,Exculsively for children social
+200000010,Children potluck,2/16/2018,Ashbury,Exculsively for children social
+200000011,Children potluck,2/17/2018,Traverse,Exculsively for children social
+200000012,Rainbow Party,3/1/2018,Pace,Experience Sharing
+200000013,Rainbow Party,3/2/2018,Ashbury,Experience Sharing
+200000014,Rainbow Party,3/3/2018,Traverse,Experience Sharing
+200000015,Sport Event,3/30/2018,Pace,"Music, Games"
+200000016,Sport Event,3/31/2018,Ashbury,"Music, Games"
+200000017,Sport Event,4/1/2018,Traverse,"Music, Games"
+200000018,Movie Night,4/15/2018,Pace,"Movie, Food"
+200000019,Movie Night,4/16/2018,Ashbury,"Movie, Food"
+200000020,Movie Night,4/17/2018,Traverse,"Movie, Food"
+200000021,Video Game ,5/1/2018,Pace,"Music, Games"
+200000022,Video Game ,5/2/2018,Ashbury,"Music, Games"
+200000023,Video Game ,5/3/2018,Traverse,"Music, Games"
+200000024,Drawing ,5/30/2018,Pace,Color
+200000025,Drawing ,5/31/2018,Ashbury,Color
+200000026,Drawing ,6/1/2018,Traverse,Color
+200000027,Social Night,7/2/2018,Pace,"Food, Games, TV, Music"
+200000028,Social Night,7/3/2018,Ashbury,"Food, Games, TV, Music"
+200000029,Social Night,7/4/2018,Traverse,"Food, Games, TV, Music"
+200000030,Math Learning,8/5/2018,Pace,"Food, Games"
+200000031,Math Learning,8/6/2018,Ashbury,"Food, Games"
+200000032,Math Learning,8/7/2018,Traverse,"Food, Games"
+200000033,Dating Night,9/8/2018,Pace,"Food, Games, TV, Music"
+200000034,Dating Night,9/9/2018,Ashbury,"Food, Games, TV, Music"
+200000035,Dating Night,9/10/2018,Traverse,"Food, Games, TV, Music"
+200000036,Makeup ,10/6/2018,Pace,"Music, Games"
+200000037,Makeup ,10/7/2018,Ashbury,"Music, Games"
+200000038,Makeup ,10/8/2018,Traverse,"Music, Games"
+200000039,New Comer,11/9/2018,Pace,"Music, Games"

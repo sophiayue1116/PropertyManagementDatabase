@@ -1,0 +1,340 @@
+=====
+MATERIALIZED VIEWS
+=====
+view 1
+Accounting Department
+
+CREATE TABLE LeasePaymentDetail_view
+(CustomerID int not null,
+CustomerName nvarchar(50),
+CustomerPhoneNumber char(10), 
+CustomerEmail nvarchar(50),
+ApartmentID int not null,
+LeaseEndDate date,
+PaymentType	varchar(2)	CHECK (PaymentType IN ('CC','DC', 'C')),
+PaymentDate datetime,
+MonthlyRent decimal(9,2),
+PaymentAmount decimal(9,2), 
+Balance decimal(9,2));  
+ 
+create procedure RefleshLeasePaymentDetail_View as 
+delete from LeasePaymentDetail_view
+insert into LeasePaymentDetail_view
+select Customer.CustomerID, Customer.CustomerName, Customer.CustomerPhoneNumber, Customer.CustomerEmail, 
+Customer.ApartmentID, Lease.EndDate, Payment.PaymentType, Payment.PaymentDate, 
+Lease.MonthlyRent, Payment.PaymentAmount, (Payment.PaymentAmount - Lease.MonthlyRent) as Balance
+from Customer, Lease, Payment
+where Customer.ApartmentID = Lease.ApartmentID
+and Lease.LeaseID = Payment.LeaseID
+and Payment.PaymentItem = 'R'
+order by payment.PaymentDate;
+
+
+
+view 2
+Accounting Department
+
+CREATE TABLE PermitPaymentDetail_view
+(CustomerID int not null,
+CustomerName nvarchar(50),
+CustomerPhoneNumber char(10), 
+CustomerEmail nvarchar(50),
+VehicleID int not null,
+LicensePlateNumber nvarchar(50),
+PaymentType	varchar(2)	CHECK (PaymentType IN ('CC','DC', 'C')),
+PaymentDate datetime,
+MonthlyPrice decimal(9,2),
+PaymentAmount decimal(9,2), 
+Balance decimal(9,2));
+
+create procedure RefleshPermitPaymentDetail_View as 
+delete from PermitPaymentDetail_view
+insert into PermitPaymentDetail_view
+select Customer.CustomerID, Customer.CustomerName, Customer.CustomerPhoneNumber, Customer.CustomerEmail,
+Vehicle.VehicleID, Vehicle.LicensePlateNumber, Payment.PaymentType, Payment.PaymentDate,
+Parking_Permit.MonthlyPrice, Payment.PaymentAmount, (Payment.PaymentAmount - Parking_Permit.MonthlyPrice) as Balance
+from Customer, Vehicle, Parking_Permit, Payment
+where Customer.CustomerID = Vehicle.CustomerID
+and Vehicle.VehicleID = Parking_Permit.VehicleID
+and Payment.PermitID = Parking_Permit.PermitID
+and Payment.PaymentItem = 'P'
+order by payment.PaymentDate;
+ 
+
+
+view 3
+Customer
+
+CREATE TABLE AvailAparmentDetail_view
+(ApartmentID int not null,
+CommunityName nvarchar(50),
+Street nvarchar(100),
+City nvarchar(100),
+ContactNumber char(10),
+Unit nvarchar(10),
+RoomType varchar(3) CHECK (RoomType IN ('S', '1BD', '2BD', '3BD')),
+RoomView char(1) CHECK (RoomView IN ('R','M','N')),
+BasePrice decimal(9,2));
+
+create procedure RefreshAvailAparmentDetail_view as 
+delete from AvailAparmentDetail_view
+insert into AvailAparmentDetail_view
+Select Apartment.ApartmentID, Community.CommunityName, Community.Street,  Community.City, Community.ContactNumber, 
+Apartment.Unit, Apartment.RoomType, Apartment.RoomView, Apartment.BasePrice
+from Apartment, Community
+where Apartment.CommunityID = Community.CommunityID and Apartment.Status='A'
+order by Apartment.ApartmentID;
+
+
+view 4
+Customer
+
+CREATE TABLE EventDetail_view
+(EventID int not null,
+EventName	nvarchar(50),	
+EventDate 	datetime,
+EventDescription nvarchar(100),	
+EventLocation	nvarchar(50),	
+NumberofCustomers int,
+EmployeeName nvarchar(50),	
+EmployeePhoneNumber	char(10));
+
+create procedure RefreshEventDetail_view as 
+delete from EventDetail_view
+insert into EventDetail_view
+Select Event.EventID, Event.EventName, Event.EventDate, Event.EventDescription, Event.EventLocation, 
+count(event_customer.customerid) as NumberofCustomers, Employee.EmployeeName, Employee.EmployeePhoneNumber
+from Event, Work_Schedule, Work_Schedule_Community_Employee, Event_Customer, Employee
+where Event.EventID = Work_Schedule.EventID and Work_Schedule.WorkScheduleID = Work_Schedule_Community_Employee.WorkScheduleID 
+and Event.EventID = Event_Customer.EventID and Employee.EmployeeID = Work_Schedule_Community_Employee.CEmployeeID 
+and Year(Event.EventDate) = Year(GETDATE()) and Month(Event.EventDate) in (Month(GETDATE()), Month(GETDATE()+1)) 
+group by Event.EventID, Event.EventName, Event.EventDate, Event.EventDescription, Event.EventLocation, 
+Employee.EmployeeName, Employee.EmployeePhoneNumber
+order by Event.EventDate;
+
+view 5
+Management
+
+CREATE TABLE StaffBonusDetail_view
+(EmployeeID int not null,
+EmployeeName nvarchar(50),	
+TotalHoursWorked int,
+TotalAmountPaid decimal(9,2),	
+Year int,
+Month int);
+
+create procedure RefreshStaffBonusDetail_view as 
+delete from StaffBonusDetail_view
+insert into StaffBonusDetail_view
+Select Employee.EmployeeID, Employee.EmployeeName, 
+sum(datediff(hour,work_schedule.WorkStartTime,Work_Schedule.WorkEndTime)) as TotalHoursWorked,
+sum(datediff(hour,work_schedule.WorkStartTime,Work_Schedule.WorkEndTime))*Community_Employee_Staff.HourlyRate as TotalAmountPaid,
+year(Work_Schedule.WorkEndTime) as Year, month(Work_Schedule.WorkEndTime) as Month  
+from Work_Schedule_Community_Employee, Work_Schedule, Community_Employee_Staff, Employee
+where Work_Schedule.WorkScheduleID = Work_Schedule_Community_Employee.WorkScheduleID
+and Community_Employee_Staff.SCEmployeeID = Work_Schedule_Community_Employee.CEmployeeID
+and Employee.EmployeeID=Community_Employee_Staff.SCEmployeeID
+group by Employee.EmployeeID, Employee.EmployeeName, Community_Employee_Staff.HourlyRate, month(Work_Schedule.WorkEndTime), year(Work_Schedule.WorkEndTime)
+order by Year, Month, Employee.EmployeeID;
+
+
+view 6
+Management
+
+CREATE TABLE PartCostDetail_view
+(CommunityID int not null,
+CommunityName nvarchar(50),	
+TotalCost int,	
+Year int,
+Month int);
+
+create procedure RefreshPartCostDetail_view as 
+delete from PartCostDetail_view
+insert into PartCostDetail_view
+select Community.CommunityID, Community.CommunityName, sum(consume.quantity*supplies.unitprice) as TotalCost,
+year(Work_Order.CompletionDate) as Year, month(Work_Order.CompletionDate) as Month
+from Community, Apartment, Work_Order, Consume, Supplies
+where Community.CommunityID = Apartment.CommunityID and Apartment.ApartmentID = Work_Order.ApartmentID
+and Work_Order.WorkOrderID = Consume.WorkOrderID and Consume.PartID = Supplies.PartID and Work_Order.CompletionDate is not null
+group by Community.CommunityID, Community.CommunityName, month(Work_Order.CompletionDate), year(Work_Order.CompletionDate)
+order by Year, Month, Community.CommunityID; 
+
+
+
+=====
+TRIGGERS
+=====
+
+trigger 1
+Loggin for BasePrice
+
+CREATE TABLE BasePriceUpdates_Log
+(ApartmentID int,
+OldBasePrice decimal(9,2),
+NewBasePrice decimal(9,2),
+UpdateDate datetime)
+
+create trigger  BasePriceUpdate on Apartment
+for update
+as
+if update(BasePrice)
+begin
+insert into BasePriceUpdates_Log (ApartmentID, OldBasePrice, NewBasePrice, UpdateDate)
+select inserted.ApartmentID, deleted.BasePrice, inserted.BasePrice, GETDATE() from inserted, 
+deleted where inserted.ApartmentID = deleted.ApartmentID
+End
+
+update Apartment set BasePrice = 2900 where ApartmentID = 100;
+select * from BasePriceUpdates_Log
+
+trigger 2
+Loggin for UnitPrice
+
+CREATE TABLE UnitPriceUpdates_Log
+(SupplierID int,
+PartID int,
+OldUnitPrice decimal(9,2),
+NewUnitPrice decimal(9,2),
+UpdateDate datetime)
+
+create trigger  UnitPriceUpdate on Supplies
+for update
+as
+if update(UnitPrice)
+begin
+insert into UnitPriceUpdates_Log (SupplierID, PartID, OldUnitPrice, NewUnitPrice, UpdateDate)
+select inserted.SupplierID, inserted.PartID, deleted.UnitPrice, inserted.UnitPrice, GETDATE() from inserted, deleted where inserted.SupplierID = deleted.SupplierID and inserted.PartID = deleted.PartID
+End
+
+update Supplies set UnitPrice = 920 where SupplierID = 600000000 and PartID = 500000000;
+select * from UnitPriceUpdates_Log
+
+
+trigger 3
+data integrity
+
+Work order status, completion date
+
+create trigger CompletionDateStatusCheck on Work_Order
+for insert
+as
+declare @stu char(1), @compdate	datetime, @StartDate datetime
+select @stu = inserted.Status, @compdate = inserted.CompletionDate, @StartDate = inserted.StartDate from inserted
+if ( @stu = 'c' and @compdate is null )
+begin
+print 'Please update the completion date when work order is done!'
+rollback
+end
+
+if ((@stu = 'P' or @stu = 'D') and @compdate is not null)
+begin
+print 'Please update the status of the work order!'
+rollback
+end
+
+if ( @compdate < @StartDate )
+begin
+print 'Please check the completion date!'
+rollback
+end
+
+insert into Work_Order values (400000050, 'Floor Repair', '11/23/2018', '11/25/2018', null, 'L', 'C', 118, 100000030);
+insert into Work_Order values (400000051, 'Floor Repair', '11/23/2018', '11/25/2018', '11/26/2018', 'L', 'D', 118, 100000030);
+insert into Work_Order values (400000052, 'Floor Repair', '11/23/2018', '11/25/2018', '11/21/2018', 'L', 'C', 118, 100000030);
+
+
+trigger 4
+data integrity
+
+Apartment status, customer
+
+create trigger ApartmentCustomerCheck on Customer
+for insert
+as
+declare  @apartmentid int
+select @apartmentid = inserted.Apartmentid from inserted
+if ( (select status from Apartment where Apartmentid = @apartmentid) = 'OC')
+begin
+print 'Sorry! This apartment is not available.'
+rollback
+end
+
+insert into Customer values (4023, 'Tina',	1236927689,	'2/1/1993',	'tina@gmail.com', 'Engineer', 123135852, 101);
+insert into Customer values (4023, 'Tina',	1236927689,	'2/1/1993',	'tina@gmail.com', 'Engineer', 123135852, 138);
+select * from Customer;
+
+
+trigger 5
+data integrity
+
+Data integrity
+CREATE TRIGGER safety
+ON DATABASE
+FOR DROP_TABLE, ALTER_TABLE
+AS
+PRINT 'You must disable Trigger “safety” to drop or alter tables!'
+ROLLBACK;
+
+DROP TABLE Customer;
+ALTER TABLE Apartment DROP CONSTRAINT Apartment_FK1;
+
+
+=====
+PROCEDURES
+=====
+Procedure 1
+
+Alter Table supplies Add DiscountUnitPrice float
+
+Create Procedure PartDiscountUnitPrice as
+Update Supplies set DiscountUnitPrice = .9*UnitPrice where PartID=500000001
+Update Supplies set DiscountUnitPrice = .7*UnitPrice where PartID=500000002
+Update Supplies set DiscountUnitPrice = .6*UnitPrice where PartID=500000003
+Update Supplies set DiscountUnitPrice = .5*UnitPrice where PartID=500000004
+Update Supplies set DiscountUnitPrice = .4*UnitPrice where PartID=500000005
+Update Supplies set DiscountUnitPrice = .3*UnitPrice where PartID=500000006
+Execute PartDiscountUnitPrice
+Select* from Supplies
+
+
+Procedure 2
+Create procedure retriveleasedetails 
+@leaseid int as 
+Select Customer.CustomerID,Customer.CustomerName,lease.LeaseID,lease.StartDate,Lease.EndDate,Lease.MonthlyRent,
+Apartment.ApartmentID,Community.CommunityName
+from Customer,Lease,Apartment,Community
+where Customer.ApartmentID=Lease.ApartmentID and Lease.ApartmentID=Apartment.ApartmentID 
+and Apartment.CommunityID=Community.CommunityID and Lease.LeaseID=@leaseid
+
+execute retriveleasedetails 30000010
+execute retriveleasedetails 30000012
+
+
+Procedure 3
+Create procedure retriveworkorderdetails 
+@workordID int as 
+Select Customer.CustomerID, Apartment.ApartmentID, work_order.WorkOrderID, work_order.OrderDate, work_order.Status, 
+work_order.WorkOrderDescription, Consume.quantity, Part.Partname, sum(consume.quantity*supplies.unitprice) as TotalCost
+from Customer, Work_Order, Apartment, consume, part, supplies
+where Customer.ApartmentID = Apartment.ApartmentID
+and Apartment.ApartmentID = Work_Order.ApartmentID
+and Work_Order.WorkOrderID = Consume.WorkOrderID 
+and Consume.PartID = Part.PartID 
+and Part.PartID = Supplies.PartID
+and Work_Order.WorkOrderID = @workordID
+group by Customer.CustomerID, Apartment.ApartmentID, work_order.WorkOrderID, work_order.OrderDate, work_order.Status, 
+work_order.WorkOrderDescription, Consume.quantity, Part.Partname
+
+execute retriveworkorderdetails 400000015;
+execute retriveworkorderdetails 400000011;
+
+
+
+
+
+
+
+
+
+
+
